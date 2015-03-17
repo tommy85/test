@@ -3,7 +3,8 @@
 
 using namespace std;
 
-Singleton* Singleton::pInstance = NULL;
+Singleton* Singleton::pInstance1 = NULL;
+pthread_mutex_t Singleton::lock = PTHREAD_MUTEX_INITIALIZER;
 
 Singleton::Singleton()
 {
@@ -12,22 +13,22 @@ Singleton::Singleton()
 
 Singleton* Singleton::Instance()
 {
-    if(NULL == pInstance)
-    {
-		 //Double-checked Locking
-		 //lock();
-		 if (NULL == pInstance)
-		 {
-			  pInstance = new Singleton();
-		 }
-		 //unlock();
-    }
-    return pInstance;
+	 if(NULL == pInstance1)
+	 {
+		  //Double-checked Locking
+		  pthread_mutex_lock(&lock);
+		  if (NULL == pInstance1)
+		  {
+			   pInstance1 = new Singleton();
+		  }
+		  pthread_mutex_unlock(&lock);
+	 }
+	 return pInstance1;
 }
 
 void Singleton::Destroy()
 {
-    delete pInstance;
-    pInstance = NULL;
+    delete pInstance1;
+    pInstance1 = NULL;
     cout<< "Destroy..." << endl;
 }
